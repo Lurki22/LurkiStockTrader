@@ -22,7 +22,7 @@
             width: 100% !important;
             height: auto !important;
         }
-        select {
+        select, button {
             margin: 10px;
             padding: 5px;
         }
@@ -39,6 +39,9 @@
         <option value="year">Jahr</option>
         <option value="custom">Eigener Zeitraum</option>
     </select>
+    <input type="datetime-local" id="startTime" style="display:none;">
+    <input type="datetime-local" id="endTime" style="display:none;">
+    <button id="applyRange" style="display:none;">Anwenden</button>
     <canvas id="chart"></canvas>
 </body>
 </html>
