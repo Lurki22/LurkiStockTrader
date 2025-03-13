@@ -31,7 +31,13 @@ const chart = new Chart(ctx, {
 async function fetchStockData(symbol) {
     const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?apiKey=IdFP0vNcfWsWpYHRr0uvmw0tStpcx0nH`);
     const data = await response.json();
-    return data.results ? data.results[0].c : null;
+    if (data.results && data.results.length > 0) {
+        return data.results.map(entry => ({
+            time: new Date(entry.t).toLocaleTimeString(),
+            price: entry.c
+        })).slice(-50);
+    }
+    return null;
 }
 
 async function updateStockData(interval) {
@@ -39,11 +45,9 @@ async function updateStockData(interval) {
     clearInterval(window.updateInterval);
     window.updateInterval = setInterval(async () => {
         const symbol = stockSymbolSelect.value;
-        const newPrice = await fetchStockData(symbol);
-        if (newPrice) {
-            const time = new Date().toLocaleTimeString();
-            stockData.push({ time, price: newPrice });
-            if (stockData.length > 50) stockData.shift();
+        const newStockData = await fetchStockData(symbol);
+        if (newStockData) {
+            stockData = newStockData;
             chart.data.labels = stockData.map(d => d.time);
             chart.data.datasets[0].data = stockData.map(d => d.price);
             chart.update();
@@ -59,18 +63,18 @@ timeRangeSelect.addEventListener('change', function() {
         customTimeInputs.style.display = 'none';
         let interval;
         switch (timeRange) {
-            case 'minute': interval = 1000; break;
-            case 'hour': interval = 60000; break;
-            case 'day': interval = 3600000; break;
-            case 'month': interval = 86400000; break;
-            case 'year': interval = 2592000000; break;
+            case 'minute': interval = 60000; break;
+            case 'hour': interval = 3600000; break;
+            case 'day': interval = 86400000; break;
+            case 'month': interval = 2592000000; break;
+            case 'year': interval = 31536000000; break;
         }
         updateStockData(interval);
     }
 });
 
 stockSymbolSelect.addEventListener('change', function() {
-    updateStockData(2000);
+    updateStockData(60000);
 });
 
 applyRangeButton.addEventListener('click', function() {
