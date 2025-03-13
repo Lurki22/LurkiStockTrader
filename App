@@ -1,0 +1,33 @@
+import { useState, useEffect } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { Card } from "@/components/ui/card";
+
+export default function LiveStockTrader() {
+  const [stockData, setStockData] = useState([]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newPrice = {
+        time: new Date().toLocaleTimeString(),
+        price: (Math.random() * 100 + 50).toFixed(2),
+      };
+      setStockData((prevData) => [...prevData.slice(-19), newPrice]);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center p-6">
+      <h1 className="text-2xl font-bold mb-4">Live Stock Trading</h1>
+      <Card className="w-full max-w-lg p-4">
+        <LineChart width={500} height={300} data={stockData}>
+          <XAxis dataKey="time" />
+          <YAxis />
+          <CartesianGrid strokeDasharray="3 3" />
+          <Tooltip />
+          <Line type="monotone" dataKey="price" stroke="#8884d8" />
+        </LineChart>
+      </Card>
+    </div>
+  );
+}
