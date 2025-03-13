@@ -4,31 +4,38 @@ document.addEventListener("DOMContentLoaded", function() {
     const ctx = document.getElementById('chart').getContext('2d');
     const timeRangeSelect = document.getElementById('timeRange');
     const stockSymbolSelect = document.getElementById('stockSymbol');
+    const chartTypeSelect = document.getElementById('chartType');
     const customTimeInputs = document.getElementById('customTimeInputs');
     const startTimeInput = document.getElementById('startTime');
     const endTimeInput = document.getElementById('endTime');
     const applyRangeButton = document.getElementById('applyRange');
 
-    const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Stock Price',
-                data: [],
-                borderColor: 'blue',
-                fill: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { display: true },
-                y: { display: true }
-            }
+    let chart;
+    function createChart(type) {
+        if (chart) {
+            chart.destroy();
         }
-    });
+        chart = new Chart(ctx, {
+            type: type === 'candlestick' ? 'candlestick' : 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Stock Price',
+                    data: [],
+                    borderColor: 'blue',
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { display: true },
+                    y: { display: true }
+                }
+            }
+        });
+    }
 
     async function fetchStockData(symbol) {
         try {
@@ -37,7 +44,10 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.results && data.results.length > 0) {
                 return data.results.map(entry => ({
                     time: new Date(entry.t).toLocaleTimeString(),
-                    price: entry.c
+                    open: entry.o,
+                    high: entry.h,
+                    low: entry.l,
+                    close: entry.c
                 })).slice(-50);
             } else {
                 console.error("Keine Daten für die Aktie verfügbar:", symbol);
@@ -58,7 +68,9 @@ document.addEventListener("DOMContentLoaded", function() {
             if (newStockData) {
                 stockData = newStockData;
                 chart.data.labels = stockData.map(d => d.time);
-                chart.data.datasets[0].data = stockData.map(d => d.price);
+                chart.data.datasets[0].data = chartTypeSelect.value === 'candlestick'
+                    ? stockData.map(d => ({t: d.time, o: d.open, h: d.high, l: d.low, c: d.close}))
+                    : stockData.map(d => d.close);
                 chart.update();
             }
         }, interval);
@@ -87,6 +99,11 @@ document.addEventListener("DOMContentLoaded", function() {
         updateStockData(1000);
     });
 
+    chartTypeSelect.addEventListener('change', function() {
+        createChart(chartTypeSelect.value);
+        updateStockData(1000);
+    });
+
     applyRangeButton.addEventListener('click', function() {
         const startTime = new Date(startTimeInput.value);
         const endTime = new Date(endTimeInput.value);
@@ -100,5 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
         chart.data.datasets[0].data = [];
         chart.update();
     });
+
+    createChart('line');
 });
 </script>
