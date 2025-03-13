@@ -1,3 +1,4 @@
+<script>
 document.addEventListener("DOMContentLoaded", function() {
     let stockData = [];
     const ctx = document.getElementById('chart').getContext('2d');
@@ -100,3 +101,4 @@ document.addEventListener("DOMContentLoaded", function() {
         chart.update();
     });
 });
+</script>
