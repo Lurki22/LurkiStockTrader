@@ -23,7 +23,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     label: 'Stock Price',
                     data: [],
                     borderColor: 'blue',
-                    fill: false,
+                    backgroundColor: 'rgba(0, 0, 255, 0.2)',
+                    fill: type !== 'candlestick'
                 }]
             },
             options: {
@@ -39,15 +40,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function fetchStockData(symbol) {
         try {
-            const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?apiKey=DEIN_API_KEY`);
+            const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/minute/2024-06-01/2024-06-02?apiKey=DEIN_API_KEY`);
             const data = await response.json();
             if (data.results && data.results.length > 0) {
                 return data.results.map(entry => ({
-                    time: new Date(entry.t).toLocaleTimeString(),
-                    open: entry.o,
-                    high: entry.h,
-                    low: entry.l,
-                    close: entry.c
+                    t: entry.t,
+                    o: entry.o,
+                    h: entry.h,
+                    l: entry.l,
+                    c: entry.c
                 })).slice(-50);
             } else {
                 console.error("Keine Daten für die Aktie verfügbar:", symbol);
@@ -67,55 +68,22 @@ document.addEventListener("DOMContentLoaded", function() {
             const newStockData = await fetchStockData(symbol);
             if (newStockData) {
                 stockData = newStockData;
-                chart.data.labels = stockData.map(d => d.time);
+                chart.data.labels = stockData.map(d => new Date(d.t).toLocaleTimeString());
                 chart.data.datasets[0].data = chartTypeSelect.value === 'candlestick'
-                    ? stockData.map(d => ({t: d.time, o: d.open, h: d.high, l: d.low, c: d.close}))
-                    : stockData.map(d => d.close);
+                    ? stockData.map(d => ({t: d.t, o: d.o, h: d.h, l: d.l, c: d.c}))
+                    : stockData.map(d => d.c);
                 chart.update();
             }
         }, interval);
     }
-
-    timeRangeSelect.addEventListener('change', function() {
-        let timeRange = timeRangeSelect.value;
-        if (timeRange === 'custom') {
-            customTimeInputs.style.display = 'block';
-        } else {
-            customTimeInputs.style.display = 'none';
-            let interval;
-            switch (timeRange) {
-                case 'second': interval = 1000; break;
-                case 'minute': interval = 60000; break;
-                case 'hour': interval = 3600000; break;
-                case 'day': interval = 86400000; break;
-                case 'month': interval = 2592000000; break;
-                case 'year': interval = 31536000000; break;
-            }
-            updateStockData(interval);
-        }
-    });
-
-    stockSymbolSelect.addEventListener('change', function() {
-        updateStockData(1000);
-    });
 
     chartTypeSelect.addEventListener('change', function() {
         createChart(chartTypeSelect.value);
         updateStockData(1000);
     });
 
-    applyRangeButton.addEventListener('click', function() {
-        const startTime = new Date(startTimeInput.value);
-        const endTime = new Date(endTimeInput.value);
-        if (isNaN(startTime) || isNaN(endTime) || startTime >= endTime) {
-            alert("Bitte geben Sie einen gültigen Zeitraum ein.");
-            return;
-        }
-        console.log("Eigener Zeitraum: ", startTime, "bis", endTime);
-        stockData = [];
-        chart.data.labels = [];
-        chart.data.datasets[0].data = [];
-        chart.update();
+    stockSymbolSelect.addEventListener('change', function() {
+        updateStockData(1000);
     });
 
     createChart('line');
