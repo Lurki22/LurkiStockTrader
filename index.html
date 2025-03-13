@@ -1,3 +1,4 @@
+// index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,13 +8,38 @@
 </head>
 <body>
     <div id="root"></div>
-    <script src="main.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
 
+// main.jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./index.css";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// App.jsx
+import LiveStockTrader from "./components/LiveStockTrader";
+
+function App() {
+  return (
+    <div>
+      <LiveStockTrader />
+    </div>
+  );
+}
+
+export default App;
+
+// LiveStockTrader.jsx
 import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { Card } from "@/components/ui/card";
 
 export default function LiveStockTrader() {
   const [stockData, setStockData] = useState([]);
@@ -32,7 +58,7 @@ export default function LiveStockTrader() {
   return (
     <div className="flex flex-col items-center p-6">
       <h1 className="text-2xl font-bold mb-4">Live Stock Trading</h1>
-      <Card className="w-full max-w-lg p-4">
+      <div className="w-full max-w-lg p-4 border rounded shadow">
         <LineChart width={500} height={300} data={stockData}>
           <XAxis dataKey="time" />
           <YAxis />
@@ -40,14 +66,16 @@ export default function LiveStockTrader() {
           <Tooltip />
           <Line type="monotone" dataKey="price" stroke="#8884d8" />
         </LineChart>
-      </Card>
+      </div>
     </div>
   );
 }
 
-// Vite Config Anpassung (falls Vite genutzt wird)
-import { defineConfig } from 'vite';
+// Vite Config (vite.config.js)
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
+  plugins: [react()],
   base: "./",
 });
