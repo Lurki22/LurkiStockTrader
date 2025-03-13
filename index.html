@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Stock Trader</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
     <script defer src="script.js"></script>
     <style>
         body {
@@ -49,6 +50,12 @@
         <option value="month">Monat</option>
         <option value="year">Jahr</option>
         <option value="custom">Eigener Zeitraum</option>
+    </select>
+    
+    <label for="chartType">Diagrammtyp:</label>
+    <select id="chartType">
+        <option value="line">Linienchart</option>
+        <option value="candlestick">Kerzendiagramm</option>
     </select>
     
     <div id="customTimeInputs" style="display: none;">
