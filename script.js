@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     stockSymbolSelect.addEventListener('change', function() {
-        updateStockData(60000);
+        updateStockData(1000);
     });
 
     applyRangeButton.addEventListener('click', function() {
