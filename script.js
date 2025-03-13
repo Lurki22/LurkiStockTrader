@@ -2,6 +2,7 @@
 let stockData = [];
 const ctx = document.getElementById('chart').getContext('2d');
 const timeRangeSelect = document.getElementById('timeRange');
+const stockSymbolSelect = document.getElementById('stockSymbol');
 const customTimeInputs = document.getElementById('customTimeInputs');
 const startTimeInput = document.getElementById('startTime');
 const endTimeInput = document.getElementById('endTime');
@@ -27,17 +28,26 @@ const chart = new Chart(ctx, {
     }
 });
 
-function updateStockData(interval) {
+async function fetchStockData(symbol) {
+    const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?apiKey=DEIN_API_KEY`);
+    const data = await response.json();
+    return data.results ? data.results[0].c : null;
+}
+
+async function updateStockData(interval) {
     stockData = [];
     clearInterval(window.updateInterval);
-    window.updateInterval = setInterval(() => {
-        const newPrice = (Math.random() * 100 + 50).toFixed(2);
-        const time = new Date().toLocaleTimeString();
-        stockData.push({ time, price: newPrice });
-        if (stockData.length > 50) stockData.shift();
-        chart.data.labels = stockData.map(d => d.time);
-        chart.data.datasets[0].data = stockData.map(d => d.price);
-        chart.update();
+    window.updateInterval = setInterval(async () => {
+        const symbol = stockSymbolSelect.value;
+        const newPrice = await fetchStockData(symbol);
+        if (newPrice) {
+            const time = new Date().toLocaleTimeString();
+            stockData.push({ time, price: newPrice });
+            if (stockData.length > 50) stockData.shift();
+            chart.data.labels = stockData.map(d => d.time);
+            chart.data.datasets[0].data = stockData.map(d => d.price);
+            chart.update();
+        }
     }, interval);
 }
 
@@ -57,6 +67,10 @@ timeRangeSelect.addEventListener('change', function() {
         }
         updateStockData(interval);
     }
+});
+
+stockSymbolSelect.addEventListener('change', function() {
+    updateStockData(2000);
 });
 
 applyRangeButton.addEventListener('click', function() {
