@@ -1,4 +1,3 @@
-// script.js
 document.addEventListener("DOMContentLoaded", function() {
     let stockData = [];
     const ctx = document.getElementById('chart').getContext('2d');
@@ -35,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const data = await response.json();
             if (data.results && data.results.length > 0) {
                 return data.results.map(entry => ({
-                    time: new Date(entry.t).toLocaleDateString(),
+                    time: new Date(entry.t).toLocaleTimeString(),
                     price: entry.c
                 })).slice(-50);
             } else {
