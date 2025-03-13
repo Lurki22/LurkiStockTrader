@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function fetchStockData(symbol) {
         try {
-            const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/minute/2024-06-01/2024-06-02?apiKey=DEIN_API_KEY`);
+            const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/minute/2024-06-01/2024-06-02?apiKey=IdFP0vNcfWsWpYHRr0uvmw0tStpcx0nH`);
             const data = await response.json();
             if (data.results && data.results.length > 0) {
                 return data.results.map(entry => ({
