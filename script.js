@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const data = await response.json();
             if (data.results && data.results.length > 0) {
                 return data.results.map(entry => ({
-                    t: entry.t,
+                    t: new Date(entry.t).toLocaleTimeString(),
                     o: entry.o,
                     h: entry.h,
                     l: entry.l,
@@ -61,16 +61,15 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     async function updateStockData(interval) {
-        stockData = [];
         clearInterval(window.updateInterval);
         window.updateInterval = setInterval(async () => {
             const symbol = stockSymbolSelect.value;
             const newStockData = await fetchStockData(symbol);
             if (newStockData) {
                 stockData = newStockData;
-                chart.data.labels = stockData.map(d => new Date(d.t).toLocaleTimeString());
+                chart.data.labels = stockData.map(d => d.t);
                 chart.data.datasets[0].data = chartTypeSelect.value === 'candlestick'
-                    ? stockData.map(d => ({t: d.t, o: d.o, h: d.h, l: d.l, c: d.c}))
+                    ? stockData.map(d => ({x: d.t, o: d.o, h: d.h, l: d.l, c: d.c}))
                     : stockData.map(d => d.c);
                 chart.update();
             }
