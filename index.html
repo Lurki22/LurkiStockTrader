@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,7 @@
             margin: 0;
             padding: 20px;
         }
-        #chart {
+        #chart-container {
             width: 80%;
             max-width: 800px;
             margin: auto;
@@ -30,6 +30,7 @@
 </head>
 <body>
     <h1>Live Stock Trading</h1>
+    
     <label for="stockSymbol">Aktie auswählen:</label>
     <select id="stockSymbol">
         <option value="AAPL">Apple (AAPL)</option>
@@ -38,6 +39,7 @@
         <option value="AMZN">Amazon (AMZN)</option>
         <option value="MSFT">Microsoft (MSFT)</option>
     </select>
+    
     <label for="timeRange">Zeitraum:</label>
     <select id="timeRange">
         <option value="minute">Minute</option>
@@ -47,11 +49,17 @@
         <option value="year">Jahr</option>
         <option value="custom">Eigener Zeitraum</option>
     </select>
+    
     <div id="customTimeInputs" style="display: none;">
+        <label for="startTime">Startdatum:</label>
         <input type="date" id="startTime">
+        <label for="endTime">Enddatum:</label>
         <input type="date" id="endTime">
         <button id="applyRange">Anwenden</button>
     </div>
-    <canvas id="chart"></canvas>
+
+    <div id="chart-container">
+        <canvas id="chart"></canvas>
+    </div>
 </body>
 </html>
