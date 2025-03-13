@@ -29,11 +29,11 @@ const chart = new Chart(ctx, {
 });
 
 async function fetchStockData(symbol) {
-    const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?apiKey=IdFP0vNcfWsWpYHRr0uvmw0tStpcx0nH`);
+    const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?apiKey=DEIN_API_KEY`);
     const data = await response.json();
     if (data.results && data.results.length > 0) {
         return data.results.map(entry => ({
-            time: new Date(entry.t).toLocaleTimeString(),
+            time: new Date(entry.t).toLocaleDateString(),
             price: entry.c
         })).slice(-50);
     }
