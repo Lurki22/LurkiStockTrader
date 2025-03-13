@@ -1,90 +1,52 @@
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    let stockData = [];
-    const ctx = document.getElementById('chart').getContext('2d');
-    const timeRangeSelect = document.getElementById('timeRange');
-    const stockSymbolSelect = document.getElementById('stockSymbol');
-    const chartTypeSelect = document.getElementById('chartType');
-    const customTimeInputs = document.getElementById('customTimeInputs');
-    const startTimeInput = document.getElementById('startTime');
-    const endTimeInput = document.getElementById('endTime');
-    const applyRangeButton = document.getElementById('applyRange');
+// index.js
+import React from "https://cdn.skypack.dev/react";
+import ReactDOM from "https://cdn.skypack.dev/react-dom";
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "https://cdn.skypack.dev/recharts";
 
-    let chart;
-    function createChart(type) {
-        if (chart) {
-            chart.destroy();
-        }
-        chart = new Chart(ctx, {
-            type: type === 'candlestick' ? 'candlestick' : 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Stock Price',
-                    data: [],
-                    borderColor: 'blue',
-                    backgroundColor: 'rgba(0, 0, 255, 0.2)',
-                    fill: type !== 'candlestick'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { display: true },
-                    y: { display: true }
-                }
-            }
-        });
-    }
+const API_KEY = "DEIN_POLYGON_API_KEY";
+const STOCKS = ["AAPL", "GOOGL", "TSLA", "AMZN", "MSFT"];
+const INTERVALS = ["second", "minute", "hour", "day", "month", "year"];
 
-    async function fetchStockData(symbol) {
-        try {
-            const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/minute/2024-06-01/2024-06-02?apiKey=IdFP0vNcfWsWpYHRr0uvmw0tStpcx0nH`);
-            const data = await response.json();
-            if (data.results && data.results.length > 0) {
-                return data.results.map(entry => ({
-                    x: new Date(entry.t),
-                    o: entry.o,
-                    h: entry.h,
-                    l: entry.l,
-                    c: entry.c
-                })).slice(-50);
-            } else {
-                console.error("Keine Daten für die Aktie verfügbar:", symbol);
-                return null;
-            }
-        } catch (error) {
-            console.error("Fehler beim Abrufen der Daten:", error);
-            return null;
-        }
-    }
+const App = () => {
+    const [selectedStock, setSelectedStock] = React.useState("AAPL");
+    const [interval, setInterval] = React.useState("day");
+    const [data, setData] = React.useState([]);
 
-    async function updateStockData(interval) {
-        clearInterval(window.updateInterval);
-        window.updateInterval = setInterval(async () => {
-            const symbol = stockSymbolSelect.value;
-            const newStockData = await fetchStockData(symbol);
-            if (newStockData) {
-                stockData = newStockData;
-                chart.data.labels = stockData.map(d => d.x.toLocaleTimeString());
-                chart.data.datasets[0].data = chartTypeSelect.value === 'candlestick'
-                    ? stockData
-                    : stockData.map(d => d.c);
-                chart.update();
-            }
-        }, interval);
-    }
+    React.useEffect(() => {
+        fetchStockData();
+        const intervalId = setInterval(fetchStockData, 60000);
+        return () => clearInterval(intervalId);
+    }, [selectedStock, interval]);
 
-    chartTypeSelect.addEventListener('change', function() {
-        createChart(chartTypeSelect.value);
-        updateStockData(1000);
-    });
+    const fetchStockData = async () => {
+        const url = `https://api.polygon.io/v2/aggs/ticker/${selectedStock}/range/1/${interval}/2023-01-01/2023-12-31?apiKey=${API_KEY}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        setData(json.results || []);
+    };
 
-    stockSymbolSelect.addEventListener('change', function() {
-        updateStockData(1000);
-    });
+    return (
+        React.createElement("div", { className: "container" },
+            React.createElement("h1", null, "Live Stock Trader"),
+            React.createElement("div", { className: "controls" },
+                React.createElement("select", { onChange: (e) => setSelectedStock(e.target.value), value: selectedStock },
+                    STOCKS.map((stock) => React.createElement("option", { key: stock, value: stock }, stock))
+                ),
+                React.createElement("select", { onChange: (e) => setInterval(e.target.value), value: interval },
+                    INTERVALS.map((intv) => React.createElement("option", { key: intv, value: intv }, intv))
+                )
+            ),
+            React.createElement(ResponsiveContainer, { width: "100%", height: 400 },
+                React.createElement(LineChart, { data: data },
+                    React.createElement(XAxis, { dataKey: "t" }),
+                    React.createElement(YAxis, null),
+                    React.createElement(Tooltip, null),
+                    React.createElement(CartesianGrid, { stroke: "#eee", strokeDasharray: "5 5" }),
+                    React.createElement(Line, { type: "monotone", dataKey: "c", stroke: "#8884d8" })
+                )
+            )
+        )
+    );
+};
 
-    createChart('line');
-});
-</script>
+ReactDOM.render(React.createElement(App), document.getElementById("root"));
