@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: { display: true },
                 y: { display: true }
@@ -30,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function fetchStockData(symbol) {
         try {
-            const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?apiKey=IdFP0vNcfWsWpYHRr0uvmw0tStpcx0nH`);
+            const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?apiKey=DEIN_API_KEY`);
             const data = await response.json();
             if (data.results && data.results.length > 0) {
                 return data.results.map(entry => ({
