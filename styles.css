@@ -1,0 +1,13 @@
+// styles.css
+.container {
+    text-align: center;
+    padding: 20px;
+}
+.controls {
+    margin-bottom: 20px;
+}
+select, button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
+}
